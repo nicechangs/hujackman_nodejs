@@ -1,0 +1,200 @@
+
+
+CREATE DATABASE hujackman_db;
+SHOW DATABASES;
+CREATE USER 'huadmin'@'%' identified by '0956';
+GRANT ALL PRIVILEGES ON hujackman_db.* TO huadmin@'%' IDENTIFIED BY '0956';
+FLUSH PRIVILEGES;
+SHOW TABLES;
+
+
+
+-- 업체관리
+DROP TABLE IF EXISTS TB_COMP_MAS;
+CREATE TABLE TB_COMP_MAS(
+COMP_CD					VARCHAR(12) 	-- 업체코드
+,COMP_NM				VARCHAR(100) 	-- 업체명
+,COMP_ADDR			VARCHAR(300) 	-- 업체주소
+,COMP_OWNR_NM		VARCHAR(100) 	-- 대표자명
+,COMP_TELNO			VARCHAR(20) 	-- 대표번호
+,USE_YN					VARCHAR(1) 		-- 사용여부
+,MAS_S					VARCHAR(2) 		-- 원장상태
+,MEMO						TEXT					-- 메모
+,REG_DT					DATETIME 			-- 등록일시
+, PRIMARY KEY (COMP_CD)
+);
+
+
+
+-- 지점관리
+DROP TABLE IF EXISTS TB_BRANCH_MAS;
+CREATE TABLE TB_BRANCH_MAS(
+BR_CD					VARCHAR(12) 	NOT NULL-- 지점코드
+,COMP_CD			VARCHAR(12) 	NOT NULL-- 업체코드
+,BR_NM				VARCHAR(100) 	NOT NULL -- 지점명
+,BR_OWNR_CD		VARCHAR(12) 	NULL 	-- 지점장코드
+,BR_TELNO 		VARCHAR(20) 	NULL 	-- 지점대표번호
+,BR_FAXNO 		VARCHAR(20) 	NULL 	-- 지점팩스번호
+,BR_ADDR 			VARCHAR(300)	NULL 	-- 지점주소
+,USE_YN 			VARCHAR(1) 		NOT NULL -- 사용여부
+,MAS_S				VARCHAR(2) 		NOT NULL -- 원장상태
+,MEMO 				TEXT 			NULL 	-- 메모
+,REG_DT 			DATETIME 		NOT NULL-- 등록일시
+
+, PRIMARY KEY (BR_CD, COMP_CD)
+);
+
+
+
+
+-- 사용자관리
+DROP TABLE IF EXISTS TB_USER_MAS;
+CREATE TABLE TB_USER_MAS(
+COMP_CD					VARCHAR(12) 	-- 업체코드
+,BR_CD					VARCHAR(100) 	-- 지점코드
+,USR_ID					VARCHAR(50) 	-- 사용자아이디
+,USR_CD					VARCHAR(12) 	-- 사용자코드
+,USR_PWD				VARCHAR(512) 	-- 사용자비밀번호
+,USR_NM 				VARCHAR(100) 	-- 사용자명
+,USR_DOB				VARCHAR(8)		-- 생년월일
+,USR_TELNO 			VARCHAR(20) 	-- 사용자전화번호
+,USR_EMAIL 			VARCHAR(100) 	-- 사용자이메일
+,USR_ADDR				VARCHAR(300) 	-- 사용자주소
+,USR_GRANT			VARCHAR(2) 		-- 사용자권한
+,LAST_LOGIN_DT	DATETIME 			-- 마지막로그인일시
+,USE_YN 				VARCHAR(1) 		-- 사용여부
+,MAS_S					VARCHAR(2) 		NOT NULL -- 원장상태
+,MEMO 					TEXT 					-- 메모
+,REG_DT 				DATETIME 			-- 등록일시
+
+,PRIMARY KEY (COMP_CD, USR_ID)
+);
+
+
+-- 기본품목관리
+DROP TABLE IF EXISTS TB_BSCITEM_MAS;
+CREATE TABLE TB_BSCITEM_MAS(
+COMP_CD				VARCHAR(12)				-- 업체코드  
+,GRP_CD				VARCHAR(12)       -- 품목그룹코드
+,BSCITEM_CD		VARCHAR(100)      -- 품목코드  
+,BSCITEM_NM		VARCHAR(100)      -- 품목명   
+,BSCITEM_COLOR VARCHAR(3)		    -- 품목색상
+,VENDOR				VARCHAR(2)        -- 사업자코드 
+,USE_YN				VARCHAR(1)    		-- 사용여부  
+,MAS_S				VARCHAR(2)		    -- 원장상태  
+,MEMO					TEXT              -- 메모    
+,REG_DT				DATETIME          -- 등록일시  
+
+,PRIMARY KEY (COMP_CD, GRP_CD, BSCITEM_CD)
+);
+
+
+
+-- 거래처그룹관리
+DROP TABLE IF EXISTS TB_BIZGRP_MAS;
+CREATE TABLE TB_BIZGRP_MAS(
+COMP_CD				VARCHAR(12)						-- 업체코드				  
+,BIZGRP_CD		VARCHAR(12)           -- 거래처그룹코드
+,GRP_NM				VARCHAR(100)          -- 거래처그룹명		    
+,USE_YN				VARCHAR(1)            -- 사용여부				  
+,MAS_S				VARCHAR(2)            -- 원장상태				  
+,MEMO					TEXT                  -- 메모						
+,REG_DT				DATETIME              -- 등록일시				  
+
+,PRIMARY KEY (COMP_CD, BIZGRP_CD)
+);
+
+
+
+-- 거래처관리
+DROP TABLE IF EXISTS TB_BIZ_MAS;
+CREATE TABLE TB_BIZ_MAS(
+COMP_CD					VARCHAR(12)						-- 업체코드      
+,BIZ_CD					VARCHAR(12)           -- 거래처코드
+,BIZGRP_CD			VARCHAR(12)           -- 거래처그룹코드   
+,TRX_T					VARCHAR(2)           	-- 거래처구분     10:입고처, 20:출고처, 30:개통처
+,BIZ_NUM				VARCHAR(50)           -- 거래처사업자번호       
+,BIZ_NM					VARCHAR(100)          -- 거래처명      
+,MAIN_TELNO			VARCHAR(50)           -- 거래처대표번호   
+,ADDR						VARCHAR(300)          -- 거래처주소     
+,FAXNO					VARCHAR(50)           -- 거래처팩스번호   
+,OWNR_NM				VARCHAR(100)          -- 거래처대표자명   
+,OWNR_TELNO			VARCHAR(50)           -- 거래처대표자전화번호
+,OWNR_EMAIL			VARCHAR(100)          -- 거래처대표자이메일 
+,BNKR_NM				VARCHAR(100)          -- 은행명       
+,ACNT_NM				VARCHAR(100)          -- 예금주       
+,ACNT_NO				VARCHAR(50)           -- 계좌번호      
+,USE_YN					VARCHAR(1)            -- 사용여부      
+,MAS_S					VARCHAR(2)            -- 원장상태      
+,MEMO						TEXT                  -- 메모        
+,REG_DT					DATETIME              -- 등록일시      
+
+,PRIMARY KEY (COMP_CD, BIZ_CD)
+);
+
+
+
+
+-- 입/출고관리
+DROP TABLE IF EXISTS TB_BIZTRX_MAS;
+CREATE TABLE TB_BIZTRX_MAS(
+ COMP_CD				 VARCHAR(12)				-- 업체코드  
+,TRX_CD          VARCHAR(12)       	-- 일련번호  
+,INB_BIZ_CD      VARCHAR(12)       	-- 입고처   
+,INB_DT          DATETIME        		-- 입고일시  
+,INB_BR_CD       VARCHAR(12)       	-- 입고매장  
+,BSCITEM_CD      VARCHAR(100)      	-- 품목코드  
+,BAR_CD          VARCHAR(100)       -- 바코드   
+,TRX_ST          VARCHAR(2)      		-- 거래상태  
+,OUT_DT          DATETIME      		 	-- 출고일시  
+,OUT_BIZ_CD      VARCHAR(12)      	-- 출고처   
+,USR_CD          VARCHAR(12)       	-- 사용자코드
+,USE_YN          VARCHAR(1)      		-- 사용여부  
+,MAS_S           VARCHAR(2)      		-- 원장상태  
+,MEMO            TEXT              	-- 메모    
+,REG_DT          DATETIME          	-- 등록일시  
+,CHG_DT          DATETIME          	-- 변경일시  
+,PRIMARY KEY (COMP_CD, TRX_CD)
+);
+                    
+
+
+-- 입/출고이력
+DROP TABLE IF EXISTS TB_BIZTRX_HIS;
+CREATE TABLE TB_BIZTRX_HIS(
+COMP_CD				VARCHAR(12)					-- 업체코드  
+,TRX_CD        VARCHAR(12) 				-- 일련번호  
+,TRX_SEQ       INT 								-- 거래번호  
+,INB_BIZ_CD    VARCHAR(12)    		-- 입고처   
+,INB_DT        DATETIME 					-- 입고일시  
+,INB_BR_CD     VARCHAR(12) 				-- 입고매장  
+,BSCITEM_CD    VARCHAR(100)				-- 품목코드  
+,BAR_CD        VARCHAR(100)  			-- 바코드   
+,TRX_ST        VARCHAR(2)    			-- 거래상태  
+,OUT_DT        DATETIME 					-- 출고일시  
+,OUT_BIZ_CD    VARCHAR(12) 				-- 출고처   
+,USR_CD          VARCHAR(12)      -- 사용자코드
+,MAS_S         VARCHAR(2)  				-- 원장상태  
+,MEMO          TEXT        				-- 메모    
+,REG_DT        DATETIME    				-- 등록일시  
+,PRIMARY KEY (COMP_CD, TRX_CD, TRX_SEQ)
+);
+                    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
