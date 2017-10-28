@@ -14,13 +14,6 @@ module.exports = (function () {
       user: '',
       password: '!',
       database: ''
-    },
-    dev: { // dev server db info
-      host: '',
-      port: '',
-      user: '',
-      password: '',
-      database: ''
     }
   }
-})();
+});

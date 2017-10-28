@@ -13,12 +13,6 @@ var comp_mas 			= require('./routes/comp_mas'); // 업체관리
 var app = express();
 
 
-// var connection = mysql.createConnection(dbconfig);
-
-
-
-
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -30,8 +24,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
-
 app.use('/', index);
 app.use('/users', users);
 app.use('/comp_mas', comp_mas);

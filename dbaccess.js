@@ -2,30 +2,25 @@
 var mysql = require('mysql');
 var config = require('./dbcfg').local;
 
+var mysql = require('mysql');
+
 module.exports = function () {
-  return {
-    init: function () {
-      return mysql.createConnection({
-        host: config.host,
-        port: config.port,
-        user: config.user,
-        password: config.password,
-        database: config.database
-      })
-    },    
-    OPEN: function (con) {
-      con.connect(function (err) {
-        if (err) {
-          console.error('mysql connection error :' + err);
-          return -1;
-          
-        } else {
-          console.info('mysql is connected successfully.');
-        }
-      })
-    },
-    CLOSE: function (con){
-      con.end();
+  return {    
+    
+    createPool:function()
+    {	
+    	 var pool = mysql.createPool({
+			  connectionLimit : 10,
+			  host            : '127.0.0.1',
+			  user            : 'huadmin',
+			  password        : '0956',
+			  database        : 'hujackman_db',
+			  multipleStatements : true
+			  
+			});
+			
+			return pool;			
     }
+    
   }
 };
