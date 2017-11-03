@@ -10,7 +10,8 @@ var index 				= require('./routes/index');
 var users 				= require('./routes/users');
 var comp_mas 			= require('./routes/comp_mas'); // 诀眉包府
 var branch_mas 		= require('./routes/branch_mas'); // 诀眉包府
-
+var user_mas 			= require('./routes/user_mas'); // 诀眉包府
+var bscitem_mas 			= require('./routes/bscitem_mas'); // 诀眉包府
 
 var app = express();
 
@@ -27,9 +28,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', index);
-app.use('/users', users);
-app.use('/comp_mas', comp_mas);
-app.use('/branch_mas', branch_mas);
+app.use('/users'			, users);
+app.use('/comp_mas'		, comp_mas);
+app.use('/branch_mas'	, branch_mas);
+app.use('/user_mas'		, user_mas);
+app.use('/bscitem_mas', bscitem_mas);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
