@@ -554,22 +554,18 @@ SELECT @RESULT;
 
 
 
-
-
-
-
 -----------------------------------------------------------
--- TB_BIZ_MAS_IUD
+-- TB_BIZCOMP_MAS_IUD
 -----------------------------------------------------------
-DROP PROCEDURE IF EXISTS TB_BIZ_MAS_IUD;
+DROP PROCEDURE IF EXISTS TB_BIZCOMP_MAS_IUD;
 DELIMITER $$
-CREATE PROCEDURE TB_BIZ_MAS_IUD
+CREATE PROCEDURE TB_BIZCOMP_MAS_IUD
 (	
 	IN IN_VERBS					VARCHAR(1) 			-- I:INSERT, U:UPDATE, D:DELETE        	
 	,IN IN_COMP_CD				VARCHAR(12)						-- 업체코드      
-	,IN IN_BIZ_CD					VARCHAR(12)           -- 거래처코드
+	,IN IN_BIZCO_CD					VARCHAR(12)           -- 거래처코드
 	,IN IN_BIZGRP_CD			VARCHAR(12)           -- 거래처그룹코드   
-	,IN IN_TRX_T					VARCHAR(2)           	-- 거래처구분     10:입고처, 20:출고처, 30:개통처
+	,IN IN_BIZCO_T					VARCHAR(2)           	-- 거래처구분     10:입고처, 20:출고처, 30:개통처
 	,IN IN_BIZ_NUM				VARCHAR(50)           -- 거래처사업자번호       
 	,IN IN_BIZ_NM					VARCHAR(100)          -- 거래처명      
 	,IN IN_MAIN_TELNO			VARCHAR(50)           -- 거래처대표번호   
@@ -603,14 +599,14 @@ BEGIN
     
 		IF IN_VERBS = 'I' THEN -- INSERT
 
-			SELECT CONCAT( CONCAT('BZ', DATE_FORMAT(SYSDATE(), '%y-') ),  LPAD( IFNULL(SUBSTR(MAX(BIZ_CD), 6, 7) + 1, 1) , 7 ,'0')) AS CD INTO V_CD_VAL FROM TB_BIZ_MAS;
+			SELECT CONCAT( CONCAT('BZ', DATE_FORMAT(SYSDATE(), '%y-') ),  LPAD( IFNULL(SUBSTR(MAX(BIZCO_CD), 6, 7) + 1, 1) , 7 ,'0')) AS CD INTO V_CD_VAL FROM TB_BIZCOMP_MAS;
 
-      INSERT INTO TB_BIZ_MAS
+      INSERT INTO TB_BIZCOMP_MAS
       (
 	      COMP_CD				
-				,BIZ_CD				
+				,BIZCO_CD				
 				,BIZGRP_CD		
-				,TRX_T				
+				,BIZCO_T				
 				,BIZ_NUM			
 				,BIZ_NM				
 				,MAIN_TELNO		
@@ -633,7 +629,7 @@ BEGIN
       	 IN_COMP_CD				
 				,V_CD_VAL				
 				,IN_BIZGRP_CD		
-				,IN_TRX_T				
+				,IN_BIZCO_T				
 				,IN_BIZ_NUM			
 				,IN_BIZ_NM				
 				,IN_MAIN_TELNO		
@@ -655,10 +651,10 @@ BEGIN
 			SET RESULT = 0;
         
 		ELSEIF IN_VERBS = 'U' THEN -- UPDATE
-			UPDATE TB_BIZ_MAS
+			UPDATE TB_BIZCOMP_MAS
       SET
 				BIZGRP_CD		  = IN_BIZGRP_CD		
-				,TRX_T				  = IN_TRX_T				
+				,BIZCO_T				  = IN_BIZCO_T				
 				,BIZ_NUM			  = IN_BIZ_NUM			
 				,BIZ_NM				  = IN_BIZ_NM				
 				,MAIN_TELNO		  = IN_MAIN_TELNO		
@@ -673,17 +669,17 @@ BEGIN
 				,USE_YN				  = IN_USE_YN				
 				,MEMO					  = IN_MEMO					
 			WHERE COMP_CD  = IN_COMP_CD 
-            AND BIZ_CD = IN_BIZ_CD;
+            AND BIZCO_CD = IN_BIZCO_CD;
             
 			COMMIT;
 			SET RESULT = 0;
             
 		ELSEIF IN_VERBS = 'D' THEN -- DELETE
 		
-			UPDATE TB_BIZ_MAS
+			UPDATE TB_BIZCOMP_MAS
             SET MAS_S			= '90' -- 삭제
 			WHERE COMP_CD  = IN_COMP_CD 
-            AND BIZ_CD = IN_BIZ_CD;
+            AND BIZCO_CD = IN_BIZCO_CD;
             
       COMMIT;
 			SET RESULT = 0;
@@ -697,7 +693,7 @@ END$$
 DELIMITER ;
 
 
-CALL TB_BIZ_MAS_IUD('I'
+CALL TB_BIZCOMP_MAS_IUD('I'
 										,'CO17-0000001'
                     , ''
                     , 'BG17-0000001'
@@ -722,7 +718,7 @@ SELECT @RESULT;
 
 
 -----------------------------------------------------------
--- TB_BIZ_MAS_IUD
+-- TB_BIZTRX_MAS_IUD
 -----------------------------------------------------------
 DROP PROCEDURE IF EXISTS TB_BIZTRX_MAS_IUD;
 DELIMITER $$
@@ -790,13 +786,13 @@ BEGIN
       (	
       	 IN_COMP_CD								
 				,V_CD_VAL                 
-				,IN_INB_BIZ_CD            
-				,DATE(IN_INB_DT)
+				,IN_INB_BIZ_CD
+        ,STR_TO_DATE(IN_INB_DT, '%Y%m%d%H%i%s')
 				,IN_INB_BR_CD             
 				,IN_BSCITEM_CD            
 				,IN_BAR_CD                
 				,IN_TRX_ST                
-				,DATE(IN_OUT_DT)
+        ,STR_TO_DATE(IN_OUT_DT, '%Y%m%d%H%i%s')
 				,IN_OUT_BIZ_CD            
 				,IN_USR_CD                
 				,IN_USE_YN                
@@ -816,12 +812,12 @@ BEGIN
 										, V_CD_VAL
 										, 0
 										,IN_INB_BIZ_CD            
-										,DATE(IN_INB_DT)
+										,IN_INB_DT
 										,IN_INB_BR_CD             
 										,IN_BSCITEM_CD            
 										,IN_BAR_CD                
 										,IN_TRX_ST                
-										,DATE(IN_OUT_DT)
+										,IN_OUT_DT
                     ,IN_OUT_BIZ_CD            
                     ,IN_USR_CD                
                     ,IN_MEMO                              
@@ -835,17 +831,17 @@ BEGIN
 			UPDATE TB_BIZTRX_MAS
       SET
 				INB_BIZ_CD         = IN_INB_BIZ_CD 
-				,INB_DT             = DATE(IN_INB_DT)     
+                ,INB_DT             = STR_TO_DATE(IN_INB_DT, '%Y%m%d%H%i%s')
 				,INB_BR_CD          = IN_INB_BR_CD  
 				,BSCITEM_CD         = IN_BSCITEM_CD 
 				,BAR_CD             = IN_BAR_CD     
 				,TRX_ST             = IN_TRX_ST     
-				,OUT_DT             = DATE(IN_OUT_DT)     
+				,OUT_DT             = STR_TO_DATE(IN_OUT_DT, '%Y%m%d%H%i%s')  
 				,OUT_BIZ_CD         = IN_OUT_BIZ_CD 
 				,USR_CD             = IN_USR_CD     
 				,USE_YN             = IN_USE_YN     
 				,MEMO               = IN_MEMO       
-				,CHG_DT 				    = NOW()
+				,CHG_DT 			= NOW()
 			WHERE COMP_CD  = IN_COMP_CD 
             AND TRX_CD = IN_TRX_CD;
 			COMMIT;
@@ -858,12 +854,12 @@ BEGIN
 											, IN_TRX_CD
 											, 0
 											,IN_INB_BIZ_CD            
-											,DATE(IN_INB_DT)
+											,IN_INB_DT
 											,IN_INB_BR_CD             
 											,IN_BSCITEM_CD            
 											,IN_BAR_CD                
 											,IN_TRX_ST                
-											,DATE(IN_OUT_DT)
+											,IN_OUT_DT
 	                    ,IN_OUT_BIZ_CD            
 	                    ,IN_USR_CD                
 	                    ,IN_MEMO                              
@@ -887,6 +883,7 @@ BEGIN
         
 END$$
 DELIMITER;
+
 
 CALL TB_BIZTRX_MAS_IUD('I'
 					,'CO17-0000001'
@@ -918,12 +915,12 @@ CREATE PROCEDURE TB_BIZTRX_HIS_IUD
 	,IN IN_TRX_CD        VARCHAR(12) 				-- 일련번호  
 	,IN IN_TRX_SEQ       INT 								-- 거래번호  
 	,IN IN_INB_BIZ_CD    VARCHAR(12)    		-- 입고처   
-	,IN IN_INB_DT        DATETIME 					-- 입고일시  
+	,IN IN_INB_DT        VARCHAR(14) 					-- 입고일시  
 	,IN IN_INB_BR_CD     VARCHAR(12) 				-- 입고매장  
 	,IN IN_BSCITEM_CD    VARCHAR(100)				-- 품목코드  
 	,IN IN_BAR_CD        VARCHAR(100)  			-- 바코드   
 	,IN IN_TRX_ST        VARCHAR(2)    			-- 거래상태  
-	,IN IN_OUT_DT        DATETIME 					-- 출고일시  
+	,IN IN_OUT_DT        VARCHAR(14) 					-- 출고일시  
 	,IN IN_OUT_BIZ_CD    VARCHAR(12) 				-- 출고처   
 	,IN IN_USR_CD          VARCHAR(12)      -- 사용자코드
 	,IN IN_MEMO          TEXT        				-- 메모    
@@ -972,12 +969,12 @@ BEGIN
 				,IN_TRX_CD     
 				,V_SEQ    
 				,IN_INB_BIZ_CD 
-				,DATE(IN_INB_DT)
+				,STR_TO_DATE(IN_INB_DT, '%Y%m%d%H%i%s')
 				,IN_INB_BR_CD  
 				,IN_BSCITEM_CD 
 				,IN_BAR_CD     
 				,IN_TRX_ST     
-				,DATE(IN_OUT_DT)
+				,STR_TO_DATE(IN_OUT_DT, '%Y%m%d%H%i%s')
 				,IN_OUT_BIZ_CD 
 				,IN_USR_CD     
 				,'10'
@@ -1218,3 +1215,97 @@ AND MAS_S = 10; -- 정상
 	
 END$$
 DELIMITER ;
+
+
+
+
+
+-----------------------------------------------------------
+-- TB_BIZGRP_MAS_SELECT
+-----------------------------------------------------------
+DROP PROCEDURE IF EXISTS TB_BIZGRP_MAS_SELECT;
+DELIMITER $$
+CREATE PROCEDURE TB_BIZGRP_MAS_SELECT
+(	
+-- 	IN IN_VERBS					VARCHAR(1) 			-- I:INSERT, U:UPDATE, D:DELETE        	
+	IN IN_COMP_CD			VARCHAR(12)			-- 업체코드				  
+--	,IN IN_BIZGRP_CD		VARCHAR(12)     -- 거래처그룹코드
+	,IN IN_GRP_NM				VARCHAR(100)    -- 거래처그룹명		    
+	,IN IN_USE_YN				VARCHAR(1)      -- 사용여부				  	
+--	,IN IN_MEMO					TEXT            -- 메모						
+--	,OUT RESULT					INT 						-- 결과값 (성공:0, 실패-1)
+)
+
+BEGIN	
+
+SELECT
+COMP_CD
+,BIZGRP_CD
+,GRP_NM
+,USE_YN
+,MAS_S
+,MEMO
+,REG_DT
+FROM TB_BIZGRP_MAS
+WHERE COMP_CD = IN_COMP_CD
+AND GRP_NM LIKE CONCAT(IN_GRP_NM , '%')
+AND USE_YN = IN_USE_YN
+AND MAS_S = 10; -- 정상
+	
+END$$
+DELIMITER ;
+
+
+
+
+-----------------------------------------------------------
+-- TB_BIZCOMP_MAS_SELECT
+-----------------------------------------------------------
+DROP PROCEDURE IF EXISTS TB_BIZCOMP_MAS_SELECT;
+DELIMITER $$
+CREATE PROCEDURE TB_BIZCOMP_MAS_SELECT
+(	
+-- 	IN IN_VERBS					VARCHAR(1) 			-- I:INSERT, U:UPDATE, D:DELETE        	
+	IN IN_COMP_CD			VARCHAR(12)			-- 업체코드				  
+ ,IN IN_BIZGRP_CD		VARCHAR(12)     -- 거래처그룹코드
+	,IN IN_BIZ_NM				VARCHAR(100)    -- 거래처명		    
+	,IN IN_USE_YN				VARCHAR(1)      -- 사용여부				  	
+-- ,IN IN_MEMO					TEXT            -- 메모						
+-- ,OUT RESULT					INT 						-- 결과값 (성공:0, 실패-1)
+)
+
+BEGIN	
+
+SELECT
+COMP_CD
+,BIZCO_CD
+,BIZGRP_CD
+,BIZCO_T
+,BIZ_NUM
+,BIZ_NM
+,MAIN_TELNO
+,ADDR
+,FAXNO
+,OWNR_NM
+,OWNR_TELNO
+,OWNR_EMAIL
+,BNKR_NM
+,ACNT_NM
+,ACNT_NO
+,USE_YN
+,MAS_S
+,MEMO
+,REG_DT
+FROM TB_BIZCOMP_MAS
+WHERE COMP_CD = IN_COMP_CD
+AND BIZ_NM LIKE CONCAT(IN_BIZ_NM , '%')
+AND USE_YN = IN_USE_YN
+AND MAS_S = 10; -- 정상
+	
+END$$
+DELIMITER ;
+
+
+
+
+

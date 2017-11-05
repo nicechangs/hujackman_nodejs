@@ -8,13 +8,16 @@ var bodyParser 		= require('body-parser');
 
 var index 				= require('./routes/index');
 var users 				= require('./routes/users');
-var comp_mas 			= require('./routes/comp_mas'); // 诀眉包府
-var branch_mas 		= require('./routes/branch_mas'); // 诀眉包府
-var user_mas 			= require('./routes/user_mas'); // 诀眉包府
+var comp_mas 			= require('./routes/comp_mas');
+var branch_mas 		= require('./routes/branch_mas'); 
+var user_mas 			= require('./routes/user_mas'); 
+var bscitem_mas 	= require('./routes/bscitem_mas'); 
+var bizgrp_mas 		= require('./routes/bizgrp_mas'); 
+var bizcomp_mas 	= require('./routes/bizcomp_mas');
+
 
 
 var app = express();
-
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -32,6 +35,9 @@ app.use('/users'			, users);
 app.use('/comp_mas'		, comp_mas);
 app.use('/branch_mas'	, branch_mas);
 app.use('/user_mas'		, user_mas);
+app.use('/bscitem_mas', bscitem_mas);
+app.use('/bizgrp_mas' , bizgrp_mas);
+app.use('/bizcomp_mas' , bizcomp_mas);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
