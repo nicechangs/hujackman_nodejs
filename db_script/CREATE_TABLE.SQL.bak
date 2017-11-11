@@ -129,7 +129,7 @@ COMP_CD					VARCHAR(12)						-- 업체코드
 ,MEMO						TEXT                  -- 메모        
 ,REG_DT					DATETIME              -- 등록일시      
 
-,PRIMARY KEY (COMP_CD, BIZ_CD)
+,PRIMARY KEY (COMP_CD, BIZCO_CD)
 );
 
 

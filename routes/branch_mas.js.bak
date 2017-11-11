@@ -96,7 +96,7 @@ router.put('/', function(req, res)
 	var in_use_yn 		  = req.body["use_yn" 		];  // 사용여부    
 	var in_memo 			  = req.body["memo" 			];  // 메모     
 	
-	console.log("UPDATE" + req.body);
+	console.log(req.body);
 	
 	var pool = dbhandler.createPool();
 	pool.getConnection(function(err, connection)

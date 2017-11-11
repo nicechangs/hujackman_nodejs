@@ -745,6 +745,8 @@ CREATE PROCEDURE TB_BIZTRX_MAS_IUD
 BEGIN
 	DECLARE V_CD_VAL VARCHAR(12);
 	DECLARE V_TRX_ST VARCHAR(2);
+	DECLARE V_BAR_CD VARCHAR(100);
+	
 	DECLARE RESULT2 INT;
 	
 	-- 만약 SQL에러면 ROLLBACK 처리 
@@ -759,69 +761,80 @@ BEGIN
 	START TRANSACTION;
 	
 		IF IN_VERBS = 'I' THEN -- INSERT
-
-			SELECT CONCAT( CONCAT('TR', DATE_FORMAT(SYSDATE(), '%y-') ),  LPAD( IFNULL(SUBSTR(MAX(TRX_CD), 6, 7) + 1, 1) , 7 ,'0')) AS CD INTO V_CD_VAL FROM TB_BIZTRX_MAS;
-
-      INSERT INTO TB_BIZTRX_MAS
-      (
-       	COMP_CD				
-				,TRX_CD     
-				,INB_BIZ_CD 
-				,INB_DT     
-				,INB_BR_CD  
-				,BSCITEM_CD 
-				,BAR_CD     
-				,TRX_ST     
-				,OUT_DT     
-				,OUT_BIZ_CD 
-				,USR_CD     
-				,USE_YN     
-				,MAS_S      
-				,MEMO       
-				,REG_DT     
-				,CHG_DT     
-				
-			)
-			VALUES
-      (	
-      	 IN_COMP_CD								
-				,V_CD_VAL                 
-				,IN_INB_BIZ_CD
-        ,STR_TO_DATE(IN_INB_DT, '%Y%m%d%H%i%s')
-				,IN_INB_BR_CD             
-				,IN_BSCITEM_CD            
-				,IN_BAR_CD                
-				,IN_TRX_ST                
-        ,STR_TO_DATE(IN_OUT_DT, '%Y%m%d%H%i%s')
-				,IN_OUT_BIZ_CD            
-				,IN_USR_CD                
-				,IN_USE_YN                
-				,'10'                     
-				,IN_MEMO                                                                        
-				,NOW()
-				,NOW()
-			);
-
-      COMMIT;
-      
-			SET RESULT = 0;
 			
-			-- 거래이력
-			CALL TB_BIZTRX_HIS_IUD('I'
-										, IN_COMP_CD
-										, V_CD_VAL
-										, 0
-										,IN_INB_BIZ_CD            
-										,IN_INB_DT
-										,IN_INB_BR_CD             
-										,IN_BSCITEM_CD            
-										,IN_BAR_CD                
-										,IN_TRX_ST                
-										,IN_OUT_DT
-                    ,IN_OUT_BIZ_CD            
-                    ,IN_USR_CD                
-                    ,IN_MEMO                              
-                    , @RESULT2);
+			-- 기등록 바코드 확인
+			SELECT COUNT(1) AS CNT INTO V_BAR_CD 
+			FROM TB_BIZTRX_MAS 
+			WHERE COMP_CD = IN_COMP_CD AND BAR_CD = IN_BAR_CD;
+			
+			IF V_BAR_CD = '0' THEN
+					SELECT CONCAT( CONCAT('TR', DATE_FORMAT(SYSDATE(), '%y-') ),  LPAD( IFNULL(SUBSTR(MAX(TRX_CD), 6, 7) + 1, 1) , 7 ,'0')) AS CD INTO V_CD_VAL FROM TB_BIZTRX_MAS;
+
+		      INSERT INTO TB_BIZTRX_MAS
+		      (
+		       	COMP_CD				
+						,TRX_CD     
+						,INB_BIZ_CD 
+						,INB_DT     
+						,INB_BR_CD  
+						,BSCITEM_CD 
+						,BAR_CD     
+						,TRX_ST     
+						,OUT_DT     
+						,OUT_BIZ_CD 
+						,USR_CD     
+						,USE_YN     
+						,MAS_S      
+						,MEMO       
+						,REG_DT     
+						,CHG_DT     
+						
+					)
+					VALUES
+		      (	
+		      	 IN_COMP_CD								
+						,V_CD_VAL                 
+						,IN_INB_BIZ_CD
+		        ,STR_TO_DATE(IN_INB_DT, '%Y%m%d%H%i%s')
+						,IN_INB_BR_CD             
+						,IN_BSCITEM_CD            
+						,IN_BAR_CD                
+						,IN_TRX_ST                
+		        ,STR_TO_DATE(IN_OUT_DT, '%Y%m%d%H%i%s')
+						,IN_OUT_BIZ_CD            
+						,IN_USR_CD                
+						,IN_USE_YN                
+						,'10'                     
+						,IN_MEMO                                                                        
+						,NOW()
+						,NOW()
+					);
+
+		      COMMIT;
+		      
+					SET RESULT = 0;
+					
+					-- 거래이력
+					CALL TB_BIZTRX_HIS_IUD('I'
+												, IN_COMP_CD
+												, V_CD_VAL
+												, 0
+												,IN_INB_BIZ_CD            
+												,IN_INB_DT
+												,IN_INB_BR_CD             
+												,IN_BSCITEM_CD            
+												,IN_BAR_CD                
+												,IN_TRX_ST                
+												,IN_OUT_DT
+		                    ,IN_OUT_BIZ_CD            
+		                    ,IN_USR_CD                
+		                    ,IN_MEMO                              
+		                    , @RESULT2);
+				
+			ELSE
+				SET RESULT = -1001; -- 기등록 바코드 오류코드
+			END IF;
+			
         
 		ELSEIF IN_VERBS = 'U' THEN -- UPDATE
 			
@@ -915,12 +928,12 @@ CREATE PROCEDURE TB_BIZTRX_HIS_IUD
 	,IN IN_TRX_CD        VARCHAR(12) 				-- 일련번호  
 	,IN IN_TRX_SEQ       INT 								-- 거래번호  
 	,IN IN_INB_BIZ_CD    VARCHAR(12)    		-- 입고처   
-	,IN IN_INB_DT        DATETIME 					-- 입고일시  
+	,IN IN_INB_DT        VARCHAR(14) 					-- 입고일시  
 	,IN IN_INB_BR_CD     VARCHAR(12) 				-- 입고매장  
 	,IN IN_BSCITEM_CD    VARCHAR(100)				-- 품목코드  
 	,IN IN_BAR_CD        VARCHAR(100)  			-- 바코드   
 	,IN IN_TRX_ST        VARCHAR(2)    			-- 거래상태  
-	,IN IN_OUT_DT        DATETIME 					-- 출고일시  
+	,IN IN_OUT_DT        VARCHAR(14) 					-- 출고일시  
 	,IN IN_OUT_BIZ_CD    VARCHAR(12) 				-- 출고처   
 	,IN IN_USR_CD          VARCHAR(12)      -- 사용자코드
 	,IN IN_MEMO          TEXT        				-- 메모    
@@ -1208,7 +1221,7 @@ FROM TB_BSCITEM_MAS
 WHERE COMP_CD = IN_COMP_CD
 AND GRP_CD = IN_GRP_CD
 AND BSCITEM_CD LIKE CONCAT(IN_BSCITEM_CD , '%')
-AND VENDOR = IN_VENDOR
+AND VENDOR LIKE CONCAT( IN_VENDOR , '%')
 AND USE_YN = IN_USE_YN
 AND MAS_S = 10; -- 정상
 
@@ -1309,3 +1322,160 @@ DELIMITER ;
 
 
 
+
+
+
+
+-----------------------------------------------------------
+-- SP_GET_USERINFO
+-----------------------------------------------------------
+DROP PROCEDURE IF EXISTS SP_GET_USERINFO;
+DELIMITER $$
+CREATE PROCEDURE SP_GET_USERINFO
+(	
+    IN IN_COMP_CD			VARCHAR(12) 	-- 업체코드
+		 ,IN IN_USR_ID			VARCHAR(50) 	-- 사용자아이디
+		 ,IN IN_USR_PWD			VARCHAR(512) 	-- 사용자비밀번호
+)
+
+BEGIN	
+
+SELECT
+	 T1.COMP_CD
+	,T2.BR_CD
+  ,T2.BR_NM
+	,T1.USR_ID
+	,T1.USR_CD
+	,T1.USR_PWD
+	,T1.USR_NM
+	,T1.USR_DOB
+	,T1.USR_TELNO
+	,T1.USR_EMAIL
+	,T1.USR_ADDR
+	,T1.USR_GRANT
+	-- ,LAST_LOGIN_DT
+	,T1.USE_YN
+	-- ,MAS_S
+	 ,T1.MEMO
+	-- ,REG_DT
+FROM TB_USER_MAS T1 INNER JOIN TB_BRANCH_MAS T2 
+ON T1.COMP_CD = T2.COMP_CD AND T1.BR_CD = T2.BR_CD
+
+WHERE T1.COMP_CD = 'CO17-0000001'
+AND USR_ID = IN_USR_ID
+AND USR_PWD = IN_USR_PWD
+AND T1.USE_YN = 'Y'
+AND T1.MAS_S = 10 -- 정상
+AND T2.MAS_S = 10;
+	
+END$$
+DELIMITER ;
+
+
+
+
+
+
+
+
+-----------------------------------------------------------
+-- SP_GET_USERINFO
+-----------------------------------------------------------
+DROP PROCEDURE IF EXISTS SP_GET_BIZTRX_INFO;
+DELIMITER $$
+CREATE PROCEDURE SP_GET_BIZTRX_INFO
+(	
+
+    IN IN_COMP_CD			VARCHAR(12) 	-- 업체코드
+   ,IN IN_BAR_CD 		VARCHAR(100) 		-- 바코드
+	 ,IN IN_TRX_ST			VARCHAR(2) 	-- 거래상태 : 10: 입고, 20:출고, 30:개통
+	 ,IN IN_USE_YN			VARCHAR(1) 	-- 사용여부
+)
+
+BEGIN	
+
+
+SELECT 
+T1.COMP_CD
+,T1.TRX_CD
+,T1.INB_BIZ_CD
+,T2.BIZ_NM
+,T1.INB_DT
+,T1.INB_BR_CD
+,T3.BR_NM
+,T1.BSCITEM_CD
+,T1.BAR_CD
+,T1.TRX_ST
+,T1.USR_CD
+,T4.USR_NM
+,T1.USE_YN
+,T1.MEMO
+FROM TB_BIZTRX_MAS T1 INNER JOIN TB_BIZCOMP_MAS T2 
+ON T1.COMP_CD = T2.COMP_CD
+AND T1.INB_BIZ_CD = T2.BIZCO_CD
+ LEFT OUTER JOIN TB_BRANCH_MAS T3
+ ON T1.COMP_CD = T3.COMP_CD
+ AND T1.INB_BR_CD = T3.BR_CD
+ LEFT OUTER JOIN TB_USER_MAS T4
+ ON T1.COMP_CD = T4.COMP_CD
+ AND T1.USR_CD = T4.USR_CD
+ WHERE T1.COMP_CD = IN_COMP_CD
+ AND T1.BAR_CD = IN_BAR_CD 
+AND T1.TRX_ST = IN_TRX_ST
+AND T1.MAS_S = '10' 
+;
+	
+END$$
+DELIMITER ;
+
+
+
+-----------------------------------------------------------
+-- TB_BIZTRX_HIS_SELECT
+-----------------------------------------------------------
+DROP PROCEDURE IF EXISTS TB_BIZTRX_HIS_SELECT;
+DELIMITER $$
+CREATE PROCEDURE TB_BIZTRX_HIS_SELECT
+(	
+
+    IN IN_COMP_CD			VARCHAR(12) -- 업체코드
+   ,IN IN_START_DT 		VARCHAR(8) 	-- 시작일자
+	 ,IN IN_END_DT			VARCHAR(8) 	-- 종료일자
+	 
+)
+
+BEGIN	
+
+
+SELECT 
+T1.COMP_CD
+,T1.TRX_CD
+,T1.INB_BIZ_CD
+,T2.BIZ_NM
+,T1.INB_DT
+,T1.INB_BR_CD
+,T3.BR_NM
+,T1.BSCITEM_CD
+,T1.BAR_CD
+,T1.TRX_ST
+,T1.USR_CD
+,T4.USR_NM
+,T1.USE_YN
+,T1.MEMO
+FROM TB_BIZTRX_MAS T1 INNER JOIN TB_BIZCOMP_MAS T2 
+ON T1.COMP_CD = T2.COMP_CD
+AND T1.INB_BIZ_CD = T2.BIZCO_CD
+ LEFT OUTER JOIN TB_BRANCH_MAS T3
+ ON T1.COMP_CD = T3.COMP_CD
+ AND T1.INB_BR_CD = T3.BR_CD
+ LEFT OUTER JOIN TB_USER_MAS T4
+ ON T1.COMP_CD = T4.COMP_CD
+ AND T1.USR_CD = T4.USR_CD
+ WHERE T1.COMP_CD = IN_COMP_CD
+ AND T1.BAR_CD = IN_BAR_CD 
+AND T1.TRX_ST = IN_TRX_ST
+AND T1.MAS_S = '10' 
+;
+	
+END$$
+DELIMITER ;

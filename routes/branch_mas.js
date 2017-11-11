@@ -31,12 +31,12 @@ router.get('/', function(req, res)
 										{	  
 									    if(err)
 									    {
-									    	res.send(err);
+									    	res.send(JSON.stringify(err));
 									    	console.log(err);
 									    }     
 									    else 
 									    {
-									    	res.send(rows);
+									    	res.send(JSON.stringify(rows[0]));
 									      console.log(rows);
 									    }
 									  });									  

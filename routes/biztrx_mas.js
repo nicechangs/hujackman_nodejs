@@ -13,7 +13,6 @@ require('date-utils');
 // mysql database handler.
 var dbhandler = dbacc();
 
-// SELECT
 router.get('/', function(req, res) 
 {
 	var in_comp_cd			= req.query.comp_cd	  	// 업체코드				  
@@ -44,6 +43,40 @@ router.get('/', function(req, res)
 	  connection.release();
 	});
 });
+
+router.get('/gettrxdata', function(req, res) 
+{
+	var in_comp_cd			= req.query.comp_cd	  	// 업체코드
+ 	var in_bar_cd				= req.query.bar_cd   		// 바코드
+ 	var in_trx_st 			= req.query.trx_st; 		// 입출고여부
+	var in_use_yn				= req.query.use_yn		  // 사용여부	
+	
+	console.log(req.query);
+	
+	// CALL SP_GET_BIZTRX_INFO('CO17-0000001','888462563895','10','Y')
+	
+	var pool = dbhandler.createPool();
+	pool.getConnection(function(err, connection)
+	{		
+	  connection.query( "CALL SP_GET_BIZTRX_INFO(?,?,?,?)"
+	  								, [in_comp_cd, in_bar_cd, in_trx_st, in_use_yn] 
+										, function (err, rows) 
+										{	  
+									    if(err)
+									    {
+									    	res.send(JSON.stringify(err));
+									    	console.log(err);
+									    }     
+									    else 
+									    {
+									    	res.send(JSON.stringify(rows[0]));
+									      console.log(rows);
+									    }
+									  });									  
+	  connection.release();
+	});
+});
+
 
 // INSERT
 router.post('/', function(req, res)
@@ -111,12 +144,12 @@ router.post('/', function(req, res)
 										{	  
 									    if(err)
 									    {
-									    	res.send(err);
+									    	res.send(JSON.stringify(err));
 									    	console.log(err);
 									    }     
 									    else 
 									    {
-									    	res.send(rows);
+									    	res.send(JSON.stringify(rows[2]));
 									      console.log(rows);
 									    }
 									  });									  
@@ -189,14 +222,14 @@ router.put('/', function(req, res)
 											,in_out_dt ,in_out_biz_cd ,in_usr_cd,in_use_yn,in_memo ] 
 										, function (err, rows) 
 										{	  
-									    if(err)
+									     if(err)
 									    {
-									    	res.send(err);
+									    	res.send(JSON.stringify(err));
 									    	console.log(err);
 									    }     
 									    else 
 									    {
-									    	res.send(rows);
+									    	res.send(JSON.stringify(rows[2]));
 									      console.log(rows);
 									    }
 									  });									  

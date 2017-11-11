@@ -145,7 +145,7 @@ CREATE TABLE TB_BIZTRX_MAS(
 ,INB_BR_CD       VARCHAR(12)       	-- 입고매장  
 ,BSCITEM_CD      VARCHAR(100)      	-- 품목코드  
 ,BAR_CD          VARCHAR(100)       -- 바코드   
-,TRX_ST          VARCHAR(2)      		-- 거래상태  
+,TRX_ST          VARCHAR(2)      		-- 거래상태  10:입고/20:출고/30:개통
 ,OUT_DT          DATETIME      		 	-- 출고일시  
 ,OUT_BIZ_CD      VARCHAR(12)      	-- 출고처   
 ,USR_CD          VARCHAR(12)       	-- 사용자코드

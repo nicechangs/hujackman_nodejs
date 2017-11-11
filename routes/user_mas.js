@@ -45,6 +45,74 @@ router.get('/', function(req, res)
 	});
 });
 
+
+// login
+router.get('/login', function(req, res)
+{
+	var in_comp_cd				= req.query.comp_cd; // 업체코드
+	var in_usr_id					= req.query.usr_id; // 사용자아이디
+	var in_usr_pwd				= req.query.usr_pwd; // 사용자비밀번호
+
+	console.log(req.body);
+	
+	var pool = dbhandler.createPool();
+	pool.getConnection(function(err, connection)
+	{		
+	  connection.query( "CALL SP_GET_USERINFO(?,?,?)"
+	  								, [in_comp_cd, in_usr_id, in_usr_pwd] 
+										, function (err, rows) 
+										{	  
+									    if(err)
+									    {
+									    	res.send(JSON.stringify(err));
+									    	console.log(err);
+									    }     
+									    else 
+									    {
+									    	res.send(JSON.stringify(rows[0]));
+									      console.log(rows.toString());
+									    }
+									  });									  
+	  connection.release();
+	});
+});
+
+
+
+// login
+router.post('/login', function(req, res)
+{
+	var in_comp_cd				= req.body["comp_cd"			]; // 업체코드
+	var in_usr_id					= req.body["usr_id"				]; // 사용자아이디
+	var in_usr_pwd				= req.body["usr_pwd"			]; // 사용자비밀번호
+
+	console.log(req.body);
+	
+	var pool = dbhandler.createPool();
+	pool.getConnection(function(err, connection)
+	{		
+	  connection.query( "CALL SP_GET_USERINFO(?,?,?)"
+	  								, [in_comp_cd, in_usr_id, in_usr_pwd] 
+										, function (err, rows) 
+										{	  
+									    if(err)
+									    {
+									    	res.send(JSON.stringify(err));
+									    	console.log(err);
+									    }     
+									    else 
+									    {
+									    	res.send(JSON.stringify(rows[0]));
+									      console.log(rows[0]);
+									    }
+									  });									  
+	  connection.release();
+	});
+});
+
+
+
+
 // INSERT
 router.post('/', function(req, res)
 {

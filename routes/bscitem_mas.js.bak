@@ -16,11 +16,11 @@ var dbhandler = dbacc();
 // SELECT
 router.get('/', function(req, res) 
 {
-  var in_comp_cd		=	req.query.in_comp_cd		; // 업체코드  
-	var in_grp_cd			=	req.query.in_grp_cd			; // 품목그룹코드
-	var in_bscitem_cd	=	req.query.in_bscitem_cd	; // 품목코드  
-	var in_vendor			=	req.query.in_vendor			; // 사업자코드 
-	var in_use_yn			=	req.query.in_use_yn			; // 사용여부  
+  var in_comp_cd		=	req.query.comp_cd		; // 업체코드  
+	var in_grp_cd			=	req.query.grp_cd			; // 품목그룹코드
+	var in_bscitem_cd	=	req.query.bscitem_cd	; // 품목코드  
+	var in_vendor			=	req.query.vendor			; // 사업자코드 
+	var in_use_yn			=	req.query.use_yn			; // 사용여부  
 			
 	console.log(req.query);
 		

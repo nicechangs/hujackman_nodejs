@@ -16,18 +16,18 @@ var dbhandler = dbacc();
 // SELECT
 router.get('/', function(req, res) 
 {
-	
-	var in_comp_cd			= req.query.comp_cd	 	// 업체코드				  
-	var in_grp_nm				= req.query.grp_nm		// 거래처그룹명		    
-	var in_use_yn				= req.query.use_yn		// 사용여부				  
+	var in_comp_cd			= req.query.comp_cd	  	// 업체코드				  
+ 	var in_bizgrp_cd		= req.query.bizgrp_cd   // 거래처그룹코드
+	var in_biz_nm				= req.query.biz_nm		  // 거래처명		    
+	var in_use_yn				= req.query.use_yn		  // 사용여부	
 	
 	console.log(req.query);
 		
 	var pool = dbhandler.createPool();
 	pool.getConnection(function(err, connection)
 	{		
-	  connection.query( "CALL TB_BIZGRP_MAS_SELECT(?,?,?)"
-	  								, [in_comp_cd, in_grp_nm, in_use_yn] 
+	  connection.query( "CALL TB_BIZCOMP_MAS_SELECT(?,?,?,?)"
+	  								, [in_comp_cd, in_bizgrp_cd, in_biz_nm, in_use_yn] 
 										, function (err, rows) 
 										{	  
 									    if(err)

@@ -15,16 +15,14 @@ var bscitem_mas 	= require('./routes/bscitem_mas');
 var bizgrp_mas 		= require('./routes/bizgrp_mas'); 
 var bizcomp_mas 	= require('./routes/bizcomp_mas');
 var biztrx_mas 		= require('./routes/biztrx_mas');
-
-
-
-
+var biztrx_his 		= require('./routes/biztrx_his');
 
 var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
+
 
 // uncomment after placing your favicon in /public
 // app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -42,6 +40,7 @@ app.use('/bscitem_mas', bscitem_mas);
 app.use('/bizgrp_mas' , bizgrp_mas);
 app.use('/bizcomp_mas', bizcomp_mas);
 app.use('/biztrx_mas' , biztrx_mas);
+app.use('/biztrx_his' , biztrx_his);
 
 
 // catch 404 and forward to error handler
