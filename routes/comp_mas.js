@@ -1,7 +1,6 @@
 //////////////////////////////////////
-// æ˜√º∞¸∏Æ IUD
+// TB_COMP_MAS IUD
 //////////////////////////////////////
-
 
 var express 	= require('express');
 var dbacc 		= require('../dbaccess');
@@ -12,20 +11,13 @@ var util 			= require('util');
 // mysql database handler.
 var dbhandler = dbacc();
 
-// SELECT
-// ex) http://127.0.0.1:3000/comp_mas?comp_nm=»ﬁ∏’&use_yn=Y	
+// Ï†ÑÏ≤¥Îç∞Ïù¥ÌÉÄ
 router.get('/', function(req, res) 
 {
-	var in_comp_nm			  = req.query.comp_nm;
-	var in_use_yn				  = req.query.use_yn;
-		
-	console.log(req.query);
-	
 	var pool = dbhandler.createPool();
 	pool.getConnection(function(err, connection)
 	{	
-	  connection.query( "CALL TB_COMP_MAS_SELECT(?,?,'10')"
-	  								, [in_comp_nm, in_use_yn] 
+	  connection.query( "CALL SP_GET_COMPANY_LIST('')"
 										, function (err, rows) 
 										{	  
 									    if(err)
@@ -42,6 +34,34 @@ router.get('/', function(req, res)
 	  connection.release();
 	});
 });
+
+// ÏóÖÏ≤¥Î™ÖÍ≤ÄÏÉâ
+router.get('/:name', function(req, res) 
+{
+	console.log(req.query);
+	console.log(req.params.name);
+	var pool = dbhandler.createPool();
+	pool.getConnection(function(err, connection)
+	{	
+	  connection.query( "CALL SP_GET_COMPANY_LIST(?)"
+	  								, [req.params.name] 
+										, function (err, rows) 
+										{	  
+									    if(err)
+									    {
+									    	res.send(err);
+									    	console.log(err);
+									    }     
+									    else 
+									    {
+									    	res.send(rows);
+									      console.log(rows);
+									    }
+									  });									  
+	  connection.release();
+	});
+});
+
 
 // INSERT
 router.post('/', function(req, res)

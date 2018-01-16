@@ -1033,20 +1033,13 @@ SELECT @RESULT;
 
 
 -----------------------------------------------------------
--- TB_COMP_MAS_SELECT
+-- SP_GET_COMPANY_LIST
 -----------------------------------------------------------
-DROP PROCEDURE IF EXISTS TB_COMP_MAS_SELECT;
+DROP PROCEDURE IF EXISTS SP_GET_COMPANY_LIST;
 DELIMITER $$
-CREATE PROCEDURE TB_COMP_MAS_SELECT
+CREATE PROCEDURE SP_GET_COMPANY_LIST
 (	
-    -- IN IN_COMP_CD			VARCHAR(12) 	-- 업체코드
 	IN IN_COMP_NM			VARCHAR(100) 	-- 업체명
-	-- ,IN IN_COMP_ADDR		VARCHAR(300) 	-- 업체주소
-	-- ,IN IN_COMP_OWNR_NM		VARCHAR(100) 	-- 대표자명
-	-- ,IN IN_COMP_TELNO		VARCHAR(20) 	-- 대표번호
-    ,IN IN_USE_YN			VARCHAR(1)		-- 사용여부
-	-- ,IN IN_MEMO				TEXT			-- 메모
-    ,IN IN_MAS_S			VARCHAR(2)		-- 정상여부
 )
 
 BEGIN
@@ -1062,15 +1055,14 @@ BEGIN
 	,REG_DT 
 	FROM TB_COMP_MAS
 	WHERE 1=1
-	AND COMP_NM LIKE CONCAT('%', IN_COMP_NM , '%')
-    AND USE_YN = IN_USE_YN
-	AND MAS_S = IN_MAS_S;
+	AND COMP_NM LIKE CONCAT(IN_COMP_NM , '%')
+	AND MAS_S = 10;
 	
 END$$
 DELIMITER ;
 
 
-CALL TB_COMP_MAS_SELECT('김치','Y','10');
+CALL SP_GET_COMPANY_LIST('휴먼');
 
 
 
